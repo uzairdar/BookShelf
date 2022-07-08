@@ -25,8 +25,7 @@ function CardContainer(props) {
       <Row style={{ display: "flex", justifyContent: "center" }}>
         
         {!searchbar
-          ? books
-              ?.filter((filterbook) => filterbook.status === category)
+          ? books?.length>0 && books?.filter((filterbook) => filterbook.status === category)
               .map((book) => (
                 <Col
                   style={{
@@ -41,10 +40,10 @@ function CardContainer(props) {
                   xl="4"
                   xxl="4"
                 >
-                  <Cards book={book} />
+                  <Cards key={book._id} book={book} />
                 </Col>
               ))
-          : books.map((book) => (
+          : books?.length>0 && books.map((book) => (
               <Col
                 style={{
                   minWidth: "300px",
@@ -58,7 +57,7 @@ function CardContainer(props) {
                 xl="4"
                 xxl="4"
               >
-                <Cards book={book} />
+                <Cards key={book._id} book={book} />
               </Col>
             ))}
       </Row>
