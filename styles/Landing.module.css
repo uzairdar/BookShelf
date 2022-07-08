@@ -1,0 +1,26 @@
+.main{
+    height: 100vh;
+    display: flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items: center;
+}
+.centerFlex{
+    border: 1px solid rgb(141, 137, 137);
+    padding: 20px;
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+}
+.errors{
+    color: red;
+    font-size: 12px;
+    /* margin-left: 25%; */
+}
+.space{
+    display:flex;
+    flex-direction:column;
+    width:300px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
