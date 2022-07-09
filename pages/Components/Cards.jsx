@@ -6,11 +6,13 @@ import {
     CardBody,
     Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
     CardTitle,
+    Button,
   } from 'reactstrap';
-import { changeBookStatus } from '../services/bookService';
+import { changeBookStatus, deleteBook } from '../services/bookService';
 
 import { connect } from "react-redux";
 import { loadUser, setBookData } from '../redux/ActionCreators';
+import AddBooks from './AddBooks';
 function Cards(props) {
     const {book,getUser}=props
     const [openDrop,setOpenDrop]=useState(false)
@@ -26,6 +28,17 @@ function Cards(props) {
       }
     const changeStatus=(status)=>{
         changeBookStatus(book._id,{status})
+        .then(response=>{
+            if(response.data){
+                getUser()
+            }
+        })
+        .catch(err=>{
+            console.log("err",err)
+        })
+    }
+    const deleteRecord=()=>{
+        deleteBook(book?._id)
         .then(response=>{
             if(response.data){
                 getUser()
@@ -52,13 +65,16 @@ function Cards(props) {
             </Dropdown>
         </div>
             <CardTitle ><h5 className="hovered">{book.title}</h5></CardTitle>
-            <CardSubtitle className="mb-2"> {book.authorname} </CardSubtitle>
+            <CardSubtitle className="mb-2">Author Name: {book.authorname} </CardSubtitle>
             <CardText >Publication House: {book.publicationH}</CardText>
             <CardText >  Publication Year: {book.publicationY} </CardText>
             <CardText > Publication Date: {book.publicationD} </CardText>
             <CardText > Genre: {book.genre} </CardText>
             <CardText> <p className="text-muted">{title}</p></CardText>
-            
+            <div style={{display: 'flex',justifyContent:"space-between"}}>
+            <Button color="primary" onClick={()=>deleteRecord()}>Delete</Button>
+            <AddBooks edit={true} book={book}/>
+            </div>
         </CardBody>
     </Card>
   )

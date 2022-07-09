@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from "react-modal";
 import {Button} from 'reactstrap'
-import { addBook } from '../services/bookService';
+import { addBook, updateShelf } from '../services/bookService';
+import { connect } from "react-redux";
+import { loadUser } from '../redux/ActionCreators';
 
 const customStyles = {
   content: {
@@ -20,27 +22,44 @@ const customStyles = {
   },
 };
 function AddBooks(props) {
-    const [startDate, setStartDate] = useState(new Date());
+    const {user,getUser,edit,book}=props
+    const [startDate, setStartDate] = useState(edit?new Date(book?.publicationD):new Date());
   const [modalIsOpen, setIsOpen] = useState(false);
-  const {user}=props
   const {
     register,
     formState: { errors },
     handleSubmit,
     reset
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+        title: edit?book?.title:"",
+        authorname: edit?book?.authorname:"",
+        publicationH: edit?book?.publicationH:"",
+        publicationY: edit?book?.publicationY:"",
+        genre: edit?book?.genre:"",
+      }
+  });
   const onSubmit = (data) => {
-      let bookData={
-          ...data,
-          status:"plan",
-          publicationD:startDate,
-          userId: user?._id
-      };
-    
+    if(edit){
+        updateShelf(book._id,data)
+        .then((response) =>{
+            if(response?.data){
+                getUser()
+                closeModal()
+            }
+        })
+    }
+    else{
+        let bookData={
+            ...data,
+            status:"plan",
+            publicationD:startDate,
+            userId: user?._id
+        };
         addBook(bookData)
       .then(res=>{
           if(res?.data){
-            props.setCheck((previous)=>!previous)
+            getUser()
             closeModal()
             reset()
 
@@ -49,6 +68,7 @@ function AddBooks(props) {
       .catch(err=>{
           console.log("err",err)
       })
+    }
   }
   function openModal() {
     setIsOpen(true);
@@ -58,18 +78,17 @@ function AddBooks(props) {
   }
   return (
     <div>
-        <Button onClick={openModal} color="primary">Add Book</Button>
+        <Button onClick={openModal} color="primary">{edit?"Update Book":"Add Book"}</Button>
       <Modal
         isOpen={modalIsOpen}
-        // onAfterOpen={afterOpenModal}
         onRequestClose={closeModal}
         style={customStyles}
         ariaHideApp={false}
         contentLabel="Example Modal"
       >
         <div style={{display: 'flex', justifyContent: 'space-between',alignItems: 'center'}}>
-        <h2>Insert Book Details</h2>
-        <button  onClick={closeModal}>close</button>
+        <h2>{edit?"Update Book Details":"Add Book Details"}</h2>
+        <Button  onClick={closeModal}>close</Button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} >
         <div className={styles.space}>
@@ -122,7 +141,7 @@ function AddBooks(props) {
         <div className={styles.space}>
           <label>Publication Year:</label>
           <input
-            {...register("publicationY", { required: true })}
+          {...register("publicationY", { required: true })}
             placeholder="Enter Publication Year"
           type="number"
           />
@@ -130,11 +149,20 @@ function AddBooks(props) {
             <p className={styles.errors}>Publication Year is required</p>
           )}
         </div>
-        <input type="submit" value="ADD"/>
+        <Button type="submit">{edit?"Update":"Add"}</Button>
         </form>
       </Modal>
     </div>
   )
 }
-
-export default AddBooks
+const mapStateToProps = (state) => {
+    // console.log("state", state);
+    const { user } = state;
+    return { user };
+  };
+const mapDispatchToProps = (dispatch) => {
+    return {
+      getUser: () => dispatch(loadUser()),
+    };
+  };
+export default connect(mapStateToProps,mapDispatchToProps)(AddBooks)

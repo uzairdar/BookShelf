@@ -86,7 +86,7 @@ function Dashboard(props) {
         <CardContainer searchbar={true} category="plan" books={searchBooks} />
       )}
       <center className="mb-3">
-        <AddBooks user={user} setCheck={setCheck} check={check} />
+        <AddBooks />
       </center>
     </div>
   );
